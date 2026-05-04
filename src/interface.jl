@@ -1,14 +1,10 @@
 
 # ── RData loading stub ─────────────────────────────────────────────────────────
-# Method bodies live in ext/TraitDataSourcesRDataExt.jl.
-# Calling without loading RData gives an informative error instead of a MethodError.
+# Bare declaration — no methods.  The method body lives in ext/TraitDataSourcesRDataExt.jl
+# and is loaded when `using RData` activates that extension.
+# gettraits() catches the resulting MethodError and replaces it with an informative message.
 
-function _load_rds(path::String)::TraitsBuildDatabase
-    error(
-        "Loading .rds files requires RData.jl.  Add `using RData` before calling gettraits.\n" *
-        "  (add RData to your environment with `] add RData` if not already installed)"
-    )
-end
+function _load_rds end
 
 # ── gettraits ──────────────────────────────────────────────────────────────────
 
@@ -41,8 +37,17 @@ Requires `using RData` to activate the file loading extension.
 """
 function gettraits(source::TraitDataSource; taxon::Union{String, Nothing}=nothing)
     path = traitpath(source)
-    db   = _load_rds(path)
-    df   = join_contexts(db.traits, db.contexts)
+    db   = try
+        _load_rds(path)
+    catch e
+        e isa MethodError && error(
+            "Loading .rds files requires RData.jl.  " *
+            "Add `using RData` before calling gettraits.\n" *
+            "  (add to your environment with `] add RData` if not installed)"
+        )
+        rethrow()
+    end
+    df = join_contexts(db.traits, db.contexts)
     taxon === nothing ? df : filter(r -> r.taxon_name == taxon, df)
 end
 

@@ -1,5 +1,6 @@
 module TraitDataSources
 
+using Arrow
 using DataFrames
 
 # ── Exports ───────────────────────────────────────────────────────────────────
@@ -9,7 +10,7 @@ export TraitDataSource, TraitDomain
 export GeometryDomain, InsulationDomain, RadiationDomain, RespirationDomain
 
 # Source types
-export HeatBudgetDB, TraitsBuildFile
+export HeatBudgetDB, TraitsBuildFile, CompiledParametersDB
 
 # Primary interface
 export gettraits, traitnames, traitpath
@@ -24,5 +25,6 @@ include("join_contexts.jl")
 include("interface.jl")
 include("sources/heat_budget_db.jl")
 include("sources/traits_build_file.jl")
+include("sources/compiled_parameters_db.jl")
 
 end

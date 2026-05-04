@@ -43,6 +43,33 @@ struct TraitsBuildFile <: TraitDataSource
     path::String
 end
 
+"""
+    CompiledParametersDB(path)
+    CompiledParametersDB()
+
+A compiled biophysical parameters Arrow database.  Each row is one
+`(taxon_name, parameter_struct, parameter_field)` with columns for mean, SD, n,
+95% CI, and a fitted parametric distribution stored as JSON.
+
+When called with no arguments, the path is read from
+`ENV["BIOPHYSICAL_PARAMS_PATH"]` + `"parameters.arrow"`.
+
+`gettraits` reads the Arrow file directly (no RData required) and returns a
+DataFrame, optionally filtered to one taxon via the `taxon` keyword.
+"""
+struct CompiledParametersDB <: TraitDataSource
+    path::String
+end
+
+function CompiledParametersDB()
+    root = get(ENV, "BIOPHYSICAL_PARAMS_PATH", nothing)
+    root === nothing && error(
+        "Set ENV[\"BIOPHYSICAL_PARAMS_PATH\"] to the compiled parameters database directory, " *
+        "or pass the path explicitly: CompiledParametersDB(\"/path/to/parameters.arrow\")"
+    )
+    CompiledParametersDB(joinpath(root, "parameters.arrow"))
+end
+
 # ── TraitsBuildDatabase ────────────────────────────────────────────────────────
 
 """
